@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro — AD Rio Verde</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body{display:flex;justify-content:center;}
+  .wrap{max-width:460px;width:100%;min-height:100vh;background:#fff;}
+  .hero{
+    background:linear-gradient(160deg, var(--blue-600), var(--blue-400));
+    padding:34px 26px 26px;color:#fff;text-align:center;
+  }
+  .hero img{width:56px;height:56px;border-radius:16px;margin-bottom:14px;box-shadow:0 6px 18px rgba(0,0,0,.25);}
+  .hero h1{font-size:19px;margin:0 0 6px;font-weight:800;}
+  .hero p{margin:0;font-size:13px;color:#DCEEFF;line-height:1.5;}
+  .form-area{padding:24px 24px 40px;}
+  .conditional{border-left:2.5px solid var(--blue-100);padding-left:12px;margin-top:10px;}
+  .success{display:none;text-align:center;padding:60px 26px;}
+  .success .ic{
+    width:74px;height:74px;border-radius:50%;background:var(--green-100);color:var(--green);
+    display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 18px;
+  }
+  .success h2{margin:0 0 8px;font-size:19px;}
+  .success p{color:var(--muted);font-size:13.5px;margin:0 0 24px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="formScreen">
+    <div class="hero">
+      <img src="assets/logo-mark.png" alt="Logo AD Rio Verde">
+      <h1>Jornada de recepção</h1>
+      <p>Formulário da equipe — preencha com os dados de quem acabou de chegar.</p>
+    </div>
+    <div class="form-area">
+      <label>Nome completo *</label>
+      <input type="text" id="nome" placeholder="Nome completo, sem abreviar">
+      <label>WhatsApp *</label>
+      <input type="tel" id="telefone" placeholder="(62) 9 0000-0000">
+      <label>E-mail (para o cadastro na plataforma) *</label>
+      <input type="email" id="email" placeholder="nome@email.com">
+      <label>Situação *</label>
+      <div class="seg" id="categoriaSeg">
+        <button type="button" data-v="visitante" onclick="setCategoria(this)">Visitante</button>
+        <button type="button" data-v="convertido" onclick="setCategoria(this)">Aceitou Jesus agora</button>
+        <button type="button" data-v="reconciliado" onclick="setCategoria(this)">Reconciliação</button>
+        <button type="button" data-v="novo_membro" onclick="setCategoria(this)">Veio de outra igreja</button>
+      </div>
+      <div id="wrapComum" style="display:none">
+        <div class="field-row-2">
+          <div>
+            <label>Bairro *</label>
+            <input type="text" id="bairro" placeholder="Qual bairro">
+          </div>
+          <div>
+            <label>Idade *</label>
+            <input type="number" id="idade" placeholder="Anos" min="0">
+          </div>
+        </div>
+        <label>Estado civil *</label>
+        <select id="estadoCivil">
+          <option value="">Selecione</option>
+          <option>Solteiro(a)</option>
+          <option>Casado(a)</option>
+          <option>Divorciado(a)</option>
+          <option>Viúvo(a)</option>
+        </select>
+      </div>
+      <div id="wrapReconciliado" style="display:none">
+        <label>Em qual igreja aceitou Jesus pela primeira vez? *</label>
+        <input type="text" id="igrejaAnterior" placeholder="Nome da igreja">
+      </div>
+      <div id="wrapNovoMembro" style="display:none">
+        <label>Tem carta de transferência? *</label>
+        <div class="seg" id="segCarta">
+          <button type="button" data-v="Sim" onclick="setSeg('segCarta','temCarta',this)">Sim</button>
+          <button type="button" data-v="Não" onclick="setSeg('segCarta','temCarta',this)">Não</button>
+        </div>
+        <input type="hidden" id="temCarta">
+        <div id="wrapFuncao" class="conditional" style="display:none">
+          <label>Exercia alguma função ministerial? *</label>
+          <input type="text" id="funcaoMinisterial" placeholder="Obreiro, diácono, pastor...">
+        </div>
+      </div>
+      <div id="wrapVisitante" style="display:none">
+        <label>Gostaria de participar de um Grupo de Crescimento? *</label>
+        <div class="seg" id="segGC">
+          <button type="button" data-v="Sim" onclick="setSeg('segGC','quisGC',this)">Sim</button>
+          <button type="button" data-v="Não" onclick="setSeg('segGC','quisGC',this)">Não</button>
+        </div>
+        <input type="hidden" id="quisGC">
+      </div>
+      <label>Quem está coletando essas informações? *</label>
+      <div class="seg" id="segColeta">
+        <button type="button" data-v="Equipe de recepção" onclick="setColeta(this)">Equipe de recepção</button>
+        <button type="button" data-v="Departamento" onclick="setColeta(this)">Departamento</button>
+      </div>
+      <input type="hidden" id="quemColeta">
+      <div id="wrapDepartamento" class="conditional" style="display:none">
+        <label>Qual departamento? *</label>
+        <select id="departamento">
+          <option value="">Selecione</option>
+        </select>
+      </div>
+      <button class="btn-ember block" style="margin-top:22px" onclick="enviar()">
+        <i class="ti ti-send"></i>Enviar cadastro
+      </button>
+    </div>
+  </div>
+  <div class="success" id="successScreen">
+    <div class="ic"><i class="ti ti-check"></i></div>
+    <h2>Cadastro enviado!</h2>
+    <p>A pessoa já entrou na jornada certinha.</p>
+    <button class="btn-primary block" onclick="novoCadastro()"><i class="ti ti-user-plus"></i>Cadastrar outra pessoa</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="store.js"></script>
+<script>
+var categoriaAtual = null;
+(function(){
+  var sel = document.getElementById('departamento');
+  var depts = Store.getDepartamentos();
+  depts.forEach(function(d){
+    var opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = d;
+    sel.appendChild(opt);
+  });
+})();
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2600);
+}
+function setCategoria(btn){
+  document.querySelectorAll('#categoriaSeg button').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  categoriaAtual = btn.dataset.v;
+  document.getElementById('wrapComum').style.display = 'block';
+  document.getElementById('wrapReconciliado').style.display = categoriaAtual === 'reconciliado' ? 'block' : 'none';
+  document.getElementById('wrapNovoMembro').style.display = categoriaAtual === 'novo_membro' ? 'block' : 'none';
+  document.getElementById('wrapVisitante').style.display = categoriaAtual === 'visitante' ? 'block' : 'none';
+}
+function setSeg(groupId, hiddenId, btn){
+  document.querySelectorAll('#' + groupId + ' button').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById(hiddenId).value = btn.dataset.v;
+  if(hiddenId === 'temCarta'){
+    document.getElementById('wrapFuncao').style.display = btn.dataset.v === 'Sim' ? 'block' : 'none';
+  }
+}
+function setColeta(btn){
+  document.querySelectorAll('#segColeta button').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('quemColeta').value = btn.dataset.v;
+  document.getElementById('wrapDepartamento').style.display = btn.dataset.v === 'Departamento' ? 'block' : 'none';
+}
+function enviar(){
+  var nome = document.getElementById('nome').value.trim();
+  if(!nome){ showToast('Preencha o nome completo.'); return; }
+  var telefone = document.getElementById('telefone').value.trim();
+  if(!telefone){ showToast('Preencha o WhatsApp.'); return; }
+  var email = document.getElementById('email').value.trim();
+  if(!email){ showToast('Preencha o e-mail.'); return; }
+  if(!categoriaAtual){ showToast('Escolha a situação da pessoa.'); return; }
+  var bairro = document.getElementById('bairro').value.trim();
+  if(!bairro){ showToast('Preencha o bairro.'); return; }
+  var idade = document.getElementById('idade').value.trim();
+  if(!idade){ showToast('Preencha a idade.'); return; }
+  var estadoCivil = document.getElementById('estadoCivil').value;
+  if(!estadoCivil){ showToast('Selecione o estado civil.'); return; }
+  if(categoriaAtual === 'reconciliado'){
+    var igreja = document.getElementById('igrejaAnterior').value.trim();
+    if(!igreja){ showToast('Preencha em qual igreja aceitou Jesus.'); return; }
+  }
+  if(categoriaAtual === 'novo_membro'){
+    var temCarta = document.getElementById('temCarta').value;
+    if(!temCarta){ showToast('Selecione se tem carta de transferência.'); return; }
+    if(temCarta === 'Sim'){
+      var funcao = document.getElementById('funcaoMinisterial').value.trim();
+      if(!funcao){ showToast('Preencha a função ministerial.'); return; }
+    }
+  }
+  if(categoriaAtual === 'visitante'){
+    var quisGC = document.getElementById('quisGC').value;
+    if(!quisGC){ showToast('Selecione se gostaria de participar de um GC.'); return; }
+  }
+  var quemColeta = document.getElementById('quemColeta').value;
+  if(!quemColeta){ showToast('Selecione quem está coletando as informações.'); return; }
+  if(quemColeta === 'Departamento'){
+    var depto = document.getElementById('departamento').value;
+    if(!depto){ showToast('Selecione o departamento.'); return; }
+  }
+  Store.addPerson({
+    nome: nome,
+    telefone: telefone,
+    email: email,
+    bairro: bairro,
+    idade: idade,
+    estadoCivil: estadoCivil,
+    igrejaAnterior: document.getElementById('igrejaAnterior').value.trim(),
+    temCarta: document.getElementById('temCarta').value,
+    funcaoMinisterial: document.getElementById('funcaoMinisterial').value.trim(),
+    quisGC: document.getElementById('quisGC').value,
+    quemColeta: quemColeta,
+    departamento: document.getElementById('departamento').value,
+    stage: categoriaAtual
+  });
+  document.getElementById('formScreen').style.display = 'none';
+  document.getElementById('successScreen').style.display = 'block';
+}
+function novoCadastro(){
+  var ids = ['nome','telefone','email','bairro','idade','igrejaAnterior','funcaoMinisterial'];
+  ids.forEach(function(id){ document.getElementById(id).value = ''; });
+  document.getElementById('estadoCivil').value = '';
+  document.getElementById('temCarta').value = '';
+  document.getElementById('quisGC').value = '';
+  document.getElementById('quemColeta').value = '';
+  document.getElementById('departamento').value = '';
+  categoriaAtual = null;
+  document.querySelectorAll('.seg button').forEach(function(b){ b.classList.remove('active'); });
+  var wraps = ['wrapComum','wrapReconciliado','wrapNovoMembro','wrapVisitante','wrapFuncao','wrapDepartamento'];
+  wraps.forEach(function(id){ document.getElementById(id).style.display = 'none'; });
+  document.getElementById('successScreen').style.display = 'none';
+  document.getElementById('formScreen').style.display = 'block';
+}
+</script>
+</body>
+</html>
