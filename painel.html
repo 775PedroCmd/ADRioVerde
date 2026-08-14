@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel — Jornada de Recepção · AD Rio Verde</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body{margin:0;}
+  @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  .loading-overlay{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:9999;}
+  .loading-overlay .spin{animation:spin 1s linear infinite;display:inline-block;}
+  .topbar{background:linear-gradient(160deg,var(--blue-600),var(--blue-400));padding:20px 24px;color:#fff;}
+  .topbar-inner{max-width:920px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+  .topbar img{width:40px;height:40px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.2);}
+  .topbar h1{font-size:17px;margin:0;font-weight:800;}
+  .topbar .sub{font-size:12px;color:#DCEEFF;margin:1px 0 0;}
+  .topbar .spacer{flex:1;}
+  .topbar select{width:auto;background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);font-size:12.5px;padding:8px 10px;}
+  .topbar select option{color:var(--ink);}
+  .container{max-width:920px;margin:0 auto;padding:18px 24px 60px;}
+  .link-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:26px;}
+  .link-card{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;}
+  .link-card .ic{width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:19px;}
+  .link-card .txt{flex:1;min-width:0;}
+  .link-card .txt strong{font-size:13.5px;}
+  .link-card .txt p{margin:2px 0 0;font-size:11.5px;color:var(--muted);}
+  .link-card .link-url{font-size:11px;color:var(--blue-600);word-break:break-all;background:var(--blue-50);padding:4px 9px;border-radius:7px;margin-top:5px;}
+  .section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 10px;}
+  .stage-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:10px;margin-bottom:24px;}
+  .stage-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+  .stage-card:hover{border-color:var(--blue-400);box-shadow:0 4px 12px rgba(18,121,230,.08);}
+  .stage-card .ic{width:36px;height:36px;border-radius:10px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .stage-card .ic.blue{background:var(--blue-100);color:var(--blue-600);}
+  .stage-card .ic.ember{background:var(--ember-100);color:var(--ember-dark);}
+  .stage-card .ic.green{background:var(--green-100);color:var(--green);}
+  .stage-card h3{font-size:14px;margin:0;font-weight:700;}
+  .stage-card .desc{font-size:11px;color:var(--muted);margin:1px 0 6px;}
+  .stage-card .count{font-size:20px;font-weight:800;}
+  .stage-card .count-label{font-size:10.5px;color:var(--muted);}
+  .stage-card .resp{font-size:10.5px;color:var(--muted);margin-top:6px;}
+  .stage-card .sub-indicator{float:right;font-size:13px;color:var(--ember);margin-top:-28px;}
+  .stage-list-item{display:flex;align-items:center;gap:10px;padding:11px 0;cursor:pointer;border-bottom:1px solid var(--line);}
+  .stage-list-item:hover{background:var(--blue-50);margin:0 -12px;padding:11px 12px;}
+  .stage-list-item .info{flex:1;min-width:0;}
+  .stage-list-item .info strong{font-size:13px;display:block;}
+  .stage-list-item .info small{font-size:11px;color:var(--muted);}
+  .detail-field{margin-bottom:8px;}
+  .detail-field label{font-size:10.5px;color:var(--muted);margin:0 0 1px;}
+  .detail-field .val{font-size:13px;}
+  .move-btns{display:flex;gap:8px;margin-top:12px;}
+  .move-btns button{flex:1;justify-content:center;font-size:12.5px;padding:9px 10px;}
+  .detail-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);}
+  .detail-section h4{font-size:12px;font-weight:700;color:var(--muted);margin:0 0 8px;text-transform:uppercase;letter-spacing:.06em;}
+  .api-status{text-align:center;padding:10px;border-radius:10px;background:var(--green-100);color:var(--green);font-size:12px;font-weight:600;margin-bottom:14px;}
+</style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+  <div style="text-align:center;">
+    <i class="ti ti-loader spin" style="font-size:32px;color:#1279E6;"></i>
+    <p style="margin-top:12px;color:#777;font-size:14px;">Carregando dados...</p>
+  </div>
+</div>
+<div class="topbar">
+  <div class="topbar-inner">
+    <img src="assets/logo-mark.png" alt="Logo AD Rio Verde">
+    <div>
+      <h1>Jornada de recepção</h1>
+      <p class="sub">AD Rio Verde · do primeiro contato até virar membro</p>
+    </div>
+    <div class="spacer"></div>
+    <select id="congSelect" onchange="renderAll()"><option value="todas">Todas as congregações</option></select>
+    <button class="btn-ghost" onclick="openApiConfig()"><i class="ti ti-settings"></i>Configurações</button>
+  </div>
+</div>
+<div class="container">
+  <div class="link-cards">
+    <div class="link-card">
+      <div class="ic" style="background:var(--ember-100);color:var(--ember-dark)"><i class="ti ti-forms"></i></div>
+      <div class="txt">
+        <strong>Link da equipe (recepção/departamentos)</strong>
+        <p>Quem atende preenche por quem chegou — cai direto na etapa certa.</p>
+        <div class="link-url" id="teamLink"></div>
+      </div>
+      <button class="btn-outline" onclick="copyLink('teamLink')"><i class="ti ti-copy"></i>Copiar</button>
+    </div>
+    <div class="link-card">
+      <div class="ic" style="background:var(--blue-100);color:var(--blue-600)"><i class="ti ti-qrcode"></i></div>
+      <div class="txt">
+        <strong>Link do visitante (QR code)</strong>
+        <p>Auto-preenchimento — coloque no cartãozinho de visitante.</p>
+        <div class="link-url" id="visitorLink"></div>
+      </div>
+      <button class="btn-outline" onclick="copyLink('visitorLink')"><i class="ti ti-copy"></i>Copiar</button>
+    </div>
+  </div>
+  <div class="section-label">Portas de entrada</div>
+  <div class="stage-grid" id="entryGrid"></div>
+  <div class="section-label">Caminho até virar membro</div>
+  <div class="stage-grid" id="linearGrid"></div>
+</div>
+
+<div class="overlay" id="stageModal">
+  <div class="modal">
+    <div class="modal-head"><h2 id="stageModalTitle">Pessoas</h2><button class="close-x" onclick="closeModal('stageModal')">×</button></div>
+    <div style="margin-bottom:10px"><label>Responsável pela etapa</label><input type="text" id="stageResp" placeholder="Quem acompanha?" onblur="saveResp()"></div>
+    <div id="stageListBody"></div>
+    <button class="btn-primary block" style="margin-top:12px" onclick="openNewPersonFromStage()"><i class="ti ti-user-plus"></i>Adicionar pessoa</button>
+  </div>
+</div>
+
+<div class="overlay" id="personModal" style="z-index:70">
+  <div class="modal">
+    <div class="modal-head"><h2>Detalhes</h2><button class="close-x" onclick="closeModal('personModal')">×</button></div>
+    <div id="personBody"></div>
+  </div>
+</div>
+
+<div class="overlay" id="newPersonModal" style="z-index:70">
+  <div class="modal">
+    <div class="modal-head"><h2>Nova pessoa</h2><button class="close-x" onclick="closeModal('newPersonModal')">×</button></div>
+    <div id="newPersonBody"></div>
+  </div>
+</div>
+
+<div class="overlay" id="apiModal" style="z-index:70">
+  <div class="modal">
+    <div class="modal-head"><h2>Configurações</h2><button class="close-x" onclick="closeModal('apiModal')">×</button></div>
+    <div class="api-status"><i class="ti ti-check"></i> API inChurch conectada — sincronização ativa</div>
+    <label>Departamentos (um por linha)</label>
+    <textarea id="apiDeptos" rows="6" placeholder="UCADERV&#10;MAAD&#10;UMADERV"></textarea>
+    <button class="btn-primary block" style="margin-top:14px" onclick="saveDeptos()"><i class="ti ti-check"></i>Salvar</button>
+  </div>
+</div>
+
+<div class="overlay" id="subFunnelModal">
+  <div class="modal" style="max-width:680px">
+    <div class="subfunnel-bar">
+      <button class="back-btn" onclick="closeModal('subFunnelModal')"><i class="ti ti-arrow-left"></i>Voltar</button>
+      <h3>Jornada do Membro</h3>
+    </div>
+    <div class="subfunnel-grid" id="subFunnelGrid"></div>
+  </div>
+</div>
+
+<div class="overlay" id="routeModal" style="z-index:80">
+  <div class="modal subfunnel-route-modal">
+    <div class="modal-head"><h2>Qual caminho a pessoa vai seguir?</h2><button class="close-x" onclick="cancelRoute()">×</button></div>
+    <p>Na Jornada do Membro, a pessoa passa por Consolidação <strong>OU</strong> Escola de Batismo — depois segue para Capacitação e Voluntariado.</p>
+    <div class="subfunnel-route-options">
+      <button onclick="selectRoute('consolidacao')"><div class="ic"><i class="ti ti-heart-handshake"></i></div><strong>Consolidação</strong><small>Acompanhamento e discipulado</small></button>
+      <button onclick="selectRoute('escola_batismo')"><div class="ic"><i class="ti ti-book"></i></div><strong>Escola de Batismo</strong><small>Preparação doutrinária</small></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="store.js"></script>
+<script>
+var currentStage=null,currentPersonId=null,pendingRoutePersonId=null,newPersonStage=null;
+
+var base=document.location.origin+document.location.pathname.replace('painel.html','');
+document.getElementById('teamLink').textContent=base+'cadastro.html';
+document.getElementById('visitorLink').textContent=base+'visitante.html';
+
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2600);}
+function copyLink(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(function(){showToast('Link copiado!');});}
+function openModal(id){document.getElementById(id).classList.add('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+function fld(label,val){return '<div class="detail-field"><label>'+label+'</label><div class="val">'+val+'</div></div>';}
+
+function renderAll(){
+  var sel=document.getElementById('congSelect');var cv=sel.value;
+  var congs=Store.congregacoes();
+  sel.innerHTML='<option value="todas">Todas as congregações</option>';
+  congs.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+  sel.value=cv||'todas';
+  var eh='';ENTRY_STAGES.forEach(function(sid){var s=STAGES.find(function(x){return x.id===sid;});if(s)eh+=renderStageCard(s);});
+  document.getElementById('entryGrid').innerHTML=eh;
+  var lh='';LINEAR_STAGES.forEach(function(sid){var s=STAGES.find(function(x){return x.id===sid;});if(s)lh+=renderStageCard(s);});
+  document.getElementById('linearGrid').innerHTML=lh;
+}
+
+function renderStageCard(s){
+  var cong=document.getElementById('congSelect').value;
+  var count=Store.peopleInStage(s.id,cong).length;
+  var resp=Store.getResponsaveis()[s.id]||'';
+  var sub=s.id==='jornada_membro'?'<span class="sub-indicator"><i class="ti ti-chevrons-right"></i></span>':'';
+  return '<div class="stage-card" onclick="openStage(\''+s.id+'\')">'+sub+
+    '<div class="ic '+s.accent+'"><i class="ti '+s.icon+'"></i></div>'+
+    '<h3>'+s.label+'</h3><div class="desc">'+s.desc+'</div>'+
+    '<span class="count">'+count+'</span> <span class="count-label">pessoas</span>'+
+    (resp?'<div class="resp"><i class="ti ti-user" style="font-size:10px"></i> '+resp+'</div>':'')+'</div>';
+}
+
+function openStage(stageId){
+  currentStage=stageId;
+  var s=STAGES.find(function(x){return x.id===stageId;});
+  if(!s)return;
+  if(stageId==='jornada_membro'){openSubFunnel();return;}
+  document.getElementById('stageModalTitle').textContent=s.label;
+  document.getElementById('stageResp').value=Store.getResponsaveis()[stageId]||'';
+  renderStageList(stageId);
+  openModal('stageModal');
+}
+
+function renderStageList(stageId){
+  var cong=document.getElementById('congSelect').value;
+  var people=Store.peopleInStage(stageId,cong);
+  var h='';
+  if(people.length===0){h='<p style="text-align:center;color:var(--muted);font-size:13px;padding:20px 0">Ninguém aqui ainda.</p>';}
+  else{people.forEach(function(p){
+    var ds=daysSince(lastHistoryDate(p));
+    h+='<div class="stage-list-item" onclick="openPerson(\''+p.id+'\')">'+avatarHtml(p,36)+
+      '<div class="info"><strong>'+(p.nome||'?')+'</strong><small>'+ds;
+    if(p.pendingSync)h+=' · <span class="badge-pending">pendente</span>';
+    if(p.agenteIntegrante&&stageId==='gc')h+=' · Agente: '+p.agenteIntegrante;
+    h+='</small></div><i class="ti ti-chevron-right" style="color:var(--muted)"></i></div>';
+  });}
+  document.getElementById('stageListBody').innerHTML=h;
+}
+
+function saveResp(){if(!currentStage)return;Store.setResponsavel(currentStage,document.getElementById('stageResp').value.trim());renderAll();}
+
+function openPerson(id){
+  currentPersonId=id;
+  var p=Store.getPeople().find(function(x){return x.id===id;});
+  if(!p)return;
+  var s=STAGES.find(function(x){return x.id===p.stage;});
+  var h='<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">'+avatarHtml(p,48)+
+    '<div style="flex:1"><h2 style="margin:0;font-size:16px">'+(p.nome||'?')+'</h2>'+
+    '<div style="font-size:12px;color:var(--muted)">'+(s?s.label:'')+' · '+daysSince(lastHistoryDate(p))+'</div></div></div>';
+  if(p.pendingSync)h+='<div class="badge-pending" style="margin-bottom:8px">Pré-cadastro pendente</div>';
+  if(p.inchurchId)h+='<div class="tag" style="margin-bottom:8px">inChurch ID: '+p.inchurchId+'</div>';
+  if(p.telefone)h+=fld('WhatsApp',p.telefone);
+  if(p.email)h+=fld('E-mail',p.email);
+  if(p.bairro)h+=fld('Bairro',p.bairro);
+  if(p.idade)h+=fld('Idade',p.idade);
+  if(p.estadoCivil)h+=fld('Estado civil',p.estadoCivil);
+  if(p.igrejaAnterior)h+=fld('Igreja anterior',p.igrejaAnterior);
+  if(p.temCarta)h+=fld('Carta de transferência',p.temCarta);
+  if(p.funcaoMinisterial)h+=fld('Função ministerial',p.funcaoMinisterial);
+  if(p.quisGC)h+=fld('Quer participar de GC',p.quisGC);
+  if(p.pedidoOracao)h+=fld('Pedido de oração',p.pedidoOracao);
+  if(p.quemColeta)h+=fld('Quem coletou',p.quemColeta);
+  if(p.departamento)h+=fld('Departamento',p.departamento);
+  if(p.stage==='gc'){
+    h+='<div class="detail-section"><h4>Agente integrante</h4><div class="agente-field">'+
+      '<label>Quem é o responsável por acompanhar esta pessoa no GC?</label>'+
+      '<input type="text" id="agenteInput" value="'+(p.agenteIntegrante||'')+'" placeholder="Nome do agente integrante" onblur="saveAgente(\''+p.id+'\')"></div></div>';
+  }
+  if(p.stage==='jornada_membro'){
+    var si='';
+    if(p.subStage){var sub=SUB_STAGES.find(function(x){return x.id===p.subStage;});si=sub?sub.label:p.subStage;}
+    else{si='<em style="color:var(--ember-dark)">Aguardando definição de rota</em>';}
+    h+='<div class="detail-section"><h4>Sub-etapa atual</h4><div style="font-size:13px">'+si+'</div></div>';
+    if(p.subStage){
+      var ns=nextSubStageId(p.subStage);
+      if(ns){
+        var nsLabel=SUB_STAGES.find(function(x){return x.id===ns;}).label;
+        h+='<div class="move-btns"><button class="btn-ember" onclick="moveSub(\''+p.id+'\',\''+ns+'\')">'+
+          '<i class="ti ti-arrow-right"></i>Avançar para '+nsLabel+'</button></div>';
+      } else {
+        h+='<div class="move-btns"><button class="btn-primary" onclick="finishJourney(\''+p.id+'\')">'+
+          '<i class="ti ti-award"></i>Concluir jornada — virar Membro</button></div>';
+      }
+    } else {
+      h+='<div class="move-btns"><button class="btn-ember" onclick="openRouteForPerson(\''+p.id+'\')">'+
+        '<i class="ti ti-route"></i>Definir caminho (Consolidação ou Batismo)</button></div>';
+    }
+  }
+  var ns2=nextStageId(p.stage);
+  var ps=prevStageId(p.stage,p);
+  if(ns2||ps){
+    h+='<div class="move-btns">';
+    if(ps)h+='<button class="btn-outline" onclick="moveP(\''+p.id+'\',\''+ps+'\')"><i class="ti ti-arrow-left"></i>Voltar</button>';
+    if(ns2&&p.stage!=='jornada_membro')h+='<button class="btn-primary" onclick="moveP(\''+p.id+'\',\''+ns2+'\')"><i class="ti ti-arrow-right"></i>Avançar</button>';
+    h+='</div>';
+  }
+  h+='<div class="move-btns"><button class="btn-danger" onclick="deleteP(\''+p.id+'\')"><i class="ti ti-trash"></i>Remover pessoa</button></div>';
+  document.getElementById('personBody').innerHTML=h;
+  openModal('personModal');
+}
+
+function openRouteForPerson(id){
+  pendingRoutePersonId=id;
+  closeModal('personModal');
+  openModal('routeModal');
+}
+
+function cancelRoute(){
+  pendingRoutePersonId=null;
+  closeModal('routeModal');
+}
+
+function saveAgente(id){
+  var val=document.getElementById('agenteInput').value.trim();
+  Store.updatePerson(id,{agenteIntegrante:val});
+  showToast('Agente integrante salvo.');
+}
+
+function moveP(id,newStage){
+  Store.movePerson(id,newStage);
+  closeModal('personModal');
+  renderAll();
+  if(currentStage)renderStageList(currentStage);
+}
+
+function moveSub(id,newSub){
+  Store.moveSubStage(id,newSub);
+  openPerson(id);
+  renderSubFunnel();
+}
+
+function finishJourney(id){
+  Store.movePerson(id,'membro');
+  Store.updatePerson(id,{subStage:''});
+  closeModal('personModal');
+  renderAll();
+  showToast('Jornada concluída! A pessoa agora é um Membro.');
+}
+
+function deleteP(id){
+  if(!confirm('Tem certeza que deseja remover esta pessoa?'))return;
+  Store.deletePerson(id);
+  closeModal('personModal');
+  renderAll();
+  if(currentStage)renderStageList(currentStage);
+  showToast('Pessoa removida.');
+}
+
+function openSubFunnel(){
+  renderSubFunnel();
+  openModal('subFunnelModal');
+}
+
+function renderSubFunnel(){
+  var unassigned=Store.getPeople().filter(function(p){return p.stage==='jornada_membro'&&!p.subStage;});
+  var uh='';
+  if(unassigned.length>0){
+    uh='<div class="subfunnel-col" style="border-color:var(--ember);background:#FFF9F5">'+
+      '<div class="subfunnel-col-head">'+
+      '<div class="ic" style="background:var(--ember-100);color:var(--ember-dark)"><i class="ti ti-route"></i></div>'+
+      '<div><h4>Aguardando rota</h4><span class="count">'+unassigned.length+' pessoas</span>'+
+      '<div class="desc">Clique para definir Consolidação ou Batismo</div></div></div>';
+    unassigned.forEach(function(p){
+      uh+='<div class="subfunnel-person" onclick="openRouteForPerson(\''+p.id+'\')">'+avatarHtml(p,28)+
+        '<div class="info"><strong>'+(p.nome||'?')+'</strong><small>'+daysSince(lastHistoryDate(p))+'</small></div>'+
+        '<i class="ti ti-chevron-right" style="color:var(--ember-dark)"></i></div>';
+    });
+    uh+='</div>';
+  }
+  var h='';
+  SUB_STAGES.forEach(function(ss){
+    var people=Store.peopleInSubStage(ss.id);
+    var ph='';
+    if(people.length===0){ph='<p style="font-size:11.5px;color:var(--muted);padding:8px 0">Ninguém aqui.</p>';}
+    else{people.forEach(function(p){
+      ph+='<div class="subfunnel-person" onclick="openPerson(\''+p.id+'\')">'+avatarHtml(p,28)+
+        '<div class="info"><strong>'+(p.nome||'?')+'</strong><small>'+daysSince(lastHistoryDate(p))+'</small></div></div>';
+    });}
+    h+='<div class="subfunnel-col"><div class="subfunnel-col-head">'+
+      '<div class="ic"><i class="ti '+ss.icon+'"></i></div>'+
+      '<div><h4>'+ss.label+'</h4><span class="count">'+people.length+' pessoas</span>'+
+      '<div class="desc">'+ss.desc+'</div></div></div>'+ph+'</div>';
+  });
+  document.getElementById('subFunnelGrid').innerHTML=uh+h;
+}
+
+function selectRoute(route){
+  if(!pendingRoutePersonId)return;
+  Store.moveSubStage(pendingRoutePersonId,route);
+  pendingRoutePersonId=null;
+  closeModal('routeModal');
+  openPerson(currentPersonId);
+  renderSubFunnel();
+  renderAll();
+  showToast('Rota definida!');
+}
+
+function openNewPersonFromStage(){
+  newPersonStage=currentStage;
+  var h='<label>Nome completo *</label><input type="text" id="npNome" placeholder="Nome">'+
+    '<label>WhatsApp</label><input type="tel" id="npTel" placeholder="(62) 9 0000-0000">'+
+    '<label>E-mail</label><input type="email" id="npEmail" placeholder="nome@email.com">'+
+    '<label>Bairro</label><input type="text" id="npBairro" placeholder="Bairro">'+
+    '<button class="btn-primary block" style="margin-top:14px" onclick="addPersonQuick()"><i class="ti ti-check"></i>Adicionar</button>';
+  document.getElementById('newPersonBody').innerHTML=h;
+  openModal('newPersonModal');
+}
+
+function addPersonQuick(){
+  var nome=document.getElementById('npNome').value.trim();
+  if(!nome){showToast('Preencha o nome.');return;}
+  Store.addPerson({
+    nome:nome,
+    telefone:document.getElementById('npTel').value.trim(),
+    email:document.getElementById('npEmail').value.trim(),
+    bairro:document.getElementById('npBairro').value.trim(),
+    stage:newPersonStage||'visitante'
+  });
+  closeModal('newPersonModal');
+  renderAll();
+  if(currentStage)renderStageList(currentStage);
+  showToast('Pessoa adicionada!');
+}
+
+function openApiConfig(){
+  document.getElementById('apiDeptos').value=Store.getDepartamentos().join('\n');
+  openModal('apiModal');
+}
+
+function saveDeptos(){
+  var deptos=document.getElementById('apiDeptos').value.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  if(deptos.length)Store.setDepartamentos(deptos);
+  closeModal('apiModal');
+  showToast('Departamentos salvos.');
+}
+
+// Inicialização: carrega do Supabase, depois renderiza
+Store.load().then(function(){
+  document.getElementById('loadingOverlay').style.display='none';
+  renderAll();
+}).catch(function(){
+  document.getElementById('loadingOverlay').style.display='none';
+  renderAll();
+});
+
+// Refresh automático a cada 30 segundos (pega mudanças de outros dispositivos)
+setInterval(function(){
+  Store.load().then(function(){ renderAll(); });
+}, 30000);
+</script>
+</body>
+</html>
