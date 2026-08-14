@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bem-vindo(a) — AD Rio Verde</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body{display:flex;justify-content:center;}
+  .wrap{max-width:460px;width:100%;min-height:100vh;background:#fff;}
+  .hero{
+    background:linear-gradient(160deg, var(--blue-600), var(--blue-400));
+    padding:38px 26px 30px;color:#fff;text-align:center;
+  }
+  .hero img{width:64px;height:64px;border-radius:18px;margin-bottom:16px;box-shadow:0 6px 18px rgba(0,0,0,.25);}
+  .hero h1{font-size:22px;margin:0 0 8px;font-weight:800;}
+  .hero p{margin:0;font-size:13.5px;color:#DCEEFF;line-height:1.5;}
+  .form-area{padding:26px 24px 40px;}
+  .success{display:none;text-align:center;padding:60px 26px;}
+  .success .ic{
+    width:74px;height:74px;border-radius:50%;background:var(--green-100);color:var(--green);
+    display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 18px;
+  }
+  .success h2{margin:0 0 8px;font-size:19px;}
+  .success p{color:var(--muted);font-size:13.5px;margin:0 0 24px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="formScreen">
+    <div class="hero">
+      <img src="assets/logo-mark.png" alt="Logo AD Rio Verde">
+      <h1>Bem-vindo(a) à família AD Rio Verde</h1>
+      <p>Que bom ter você aqui! Conta um pouquinho sobre você — é rapidinho.</p>
+    </div>
+    <div class="form-area">
+      <label>Seu nome completo *</label>
+      <input type="text" id="nome" placeholder="Como você se chama?">
+      <label>WhatsApp *</label>
+      <input type="tel" id="telefone" placeholder="(62) 9 0000-0000">
+      <label>E-mail (para cadastro na plataforma)</label>
+      <input type="email" id="email" placeholder="nome@email.com">
+      <div class="field-row-2">
+        <div>
+          <label>Bairro *</label>
+          <input type="text" id="bairro" placeholder="Onde você mora">
+        </div>
+        <div>
+          <label>Idade *</label>
+          <input type="number" id="idade" placeholder="Anos" min="0">
+        </div>
+      </div>
+      <label>Estado civil *</label>
+      <select id="estadoCivil">
+        <option value="">Selecione</option>
+        <option>Solteiro(a)</option>
+        <option>Casado(a)</option>
+        <option>Divorciado(a)</option>
+        <option>Viúvo(a)</option>
+      </select>
+      <label>Gostaria de participar de um Grupo de Crescimento? *</label>
+      <div class="seg" id="segGC">
+        <button type="button" data-v="Sim" onclick="setGC(this)">Sim</button>
+        <button type="button" data-v="Não" onclick="setGC(this)">Não</button>
+      </div>
+      <input type="hidden" id="quisGC">
+      <label>Quer deixar um pedido de oração? (opcional)</label>
+      <textarea id="pedidoOracao" placeholder="Fique à vontade..."></textarea>
+      <button class="btn-ember block" style="margin-top:22px" onclick="enviar()">
+        <i class="ti ti-send"></i>Enviar
+      </button>
+    </div>
+  </div>
+  <div class="success" id="successScreen">
+    <div class="ic"><i class="ti ti-check"></i></div>
+    <h2>Recebemos seus dados!</h2>
+    <p>Foi muito bom ter você com a gente. Em breve alguém da nossa equipe vai te procurar.</p>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="store.js"></script>
+<script>
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2600);
+}
+function setGC(btn){
+  document.querySelectorAll('#segGC button').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('quisGC').value = btn.dataset.v;
+}
+function enviar(){
+  var nome = document.getElementById('nome').value.trim();
+  if(!nome){ showToast('Preencha seu nome completo.'); return; }
+  var telefone = document.getElementById('telefone').value.trim();
+  if(!telefone){ showToast('Preencha seu WhatsApp.'); return; }
+  var bairro = document.getElementById('bairro').value.trim();
+  if(!bairro){ showToast('Preencha seu bairro.'); return; }
+  var idade = document.getElementById('idade').value.trim();
+  if(!idade){ showToast('Preencha sua idade.'); return; }
+  var estadoCivil = document.getElementById('estadoCivil').value;
+  if(!estadoCivil){ showToast('Selecione seu estado civil.'); return; }
+  var quisGC = document.getElementById('quisGC').value;
+  if(!quisGC){ showToast('Selecione se gostaria de participar de um GC.'); return; }
+  Store.addPerson({
+    nome: nome,
+    telefone: telefone,
+    email: document.getElementById('email').value.trim(),
+    bairro: bairro,
+    idade: idade,
+    estadoCivil: estadoCivil,
+    quisGC: quisGC,
+    pedidoOracao: document.getElementById('pedidoOracao').value.trim(),
+    quemColeta: 'Autocadastro (QR code)',
+    stage: 'visitante'
+  });
+  document.getElementById('formScreen').style.display = 'none';
+  document.getElementById('successScreen').style.display = 'block';
+}
+</script>
+</body>
+</html>
