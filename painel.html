@@ -23,13 +23,45 @@
   .topbar select option{color:var(--ink);}
   .container{max-width:920px;margin:0 auto;padding:18px 24px 60px;}
   .link-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:26px;}
-  .link-card{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;}
+  .link-card{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;box-shadow:0 10px 30px rgba(15,35,64,.04);}
   .link-card .ic{width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:19px;}
   .link-card .txt{flex:1;min-width:0;}
   .link-card .txt strong{font-size:13.5px;}
   .link-card .txt p{margin:2px 0 0;font-size:11.5px;color:var(--muted);}
   .link-card .link-url{font-size:11px;color:var(--blue-600);word-break:break-all;background:var(--blue-50);padding:4px 9px;border-radius:7px;margin-top:5px;}
   .section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 10px;}
+  .dashboard-shell{background:linear-gradient(180deg, #fff, #F8FBFF);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 10px 30px rgba(15,35,64,.04);margin-bottom:26px;}
+  .dashboard-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;}
+  .dashboard-header h2{margin:0;font-size:18px;}
+  .eyebrow{margin:0 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+  .quick-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
+  .stat-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:flex-start;min-height:106px;}
+  .stat-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .stat-meta{flex:1;min-width:0;}
+  .stat-meta strong{display:block;font-size:24px;line-height:1.1;margin:2px 0 4px;}
+  .stat-meta span{display:block;font-size:11px;color:var(--muted);}
+  .stat-trend{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;font-size:10.5px;font-weight:700;margin-top:8px;}
+  .stat-trend.up{background:var(--green-100);color:var(--green);}
+  .stat-trend.neutral{background:var(--blue-50);color:var(--blue-600);}
+  .dashboard-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin-top:18px;}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .panel-head h3{margin:0;font-size:14px;}
+  .funnel-list{display:flex;flex-direction:column;gap:10px;}
+  .funnel-item{display:grid;grid-template-columns:100px 1fr 42px;gap:12px;align-items:center;}
+  .funnel-label{font-size:12px;color:var(--muted);font-weight:600;}
+  .funnel-track{height:10px;background:var(--bg);border-radius:999px;overflow:hidden;}
+  .funnel-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--blue-500),var(--blue-400));}
+  .funnel-bar.ember{background:linear-gradient(90deg,var(--ember),var(--ember-dark));}
+  .funnel-bar.green{background:linear-gradient(90deg,var(--green),#50c48d);}
+  .funnel-qty{font-size:12px;font-weight:800;color:var(--ink);text-align:right;}
+  .activity-list{display:flex;flex-direction:column;gap:10px;}
+  .activity-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;background:var(--bg);}
+  .activity-item .info{flex:1;min-width:0;}
+  .activity-item .info strong{display:block;font-size:12.5px;}
+  .activity-item .info small{display:block;font-size:11px;color:var(--muted);margin-top:2px;}
+  .mini-pill{font-size:10.5px;font-weight:700;padding:5px 8px;border-radius:99px;background:var(--blue-100);color:var(--blue-600);}
   .stage-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:10px;margin-bottom:24px;}
   .stage-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
   .stage-card:hover{border-color:var(--blue-400);box-shadow:0 4px 12px rgba(18,121,230,.08);}
@@ -98,6 +130,37 @@
       <button class="btn-outline" onclick="copyLink('visitorLink')"><i class="ti ti-copy"></i>Copiar</button>
     </div>
   </div>
+
+  <div class="dashboard-shell">
+    <div class="dashboard-header">
+      <div>
+        <p class="eyebrow">Visão geral</p>
+        <h2>Dashboard de recepção</h2>
+      </div>
+      <div class="quick-actions">
+        <button class="btn-primary" onclick="document.getElementById('congSelect').focus()"><i class="ti ti-filter"></i>Filtrar</button>
+        <button class="btn-outline" onclick="openSubFunnel()"><i class="ti ti-chart-dots"></i>Jornada</button>
+      </div>
+    </div>
+    <div class="stats-grid" id="dashboardStats"></div>
+    <div class="dashboard-grid">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Fluxo atual</h3>
+          <span class="mini-pill">Em andamento</span>
+        </div>
+        <div class="funnel-list" id="funnelList"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Atividade recente</h3>
+          <span class="mini-pill">Hoje</span>
+        </div>
+        <div class="activity-list" id="activityList"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="section-label">Portas de entrada</div>
   <div class="stage-grid" id="entryGrid"></div>
   <div class="section-label">Caminho até virar membro</div>
@@ -179,10 +242,60 @@ function renderAll(){
   sel.innerHTML='<option value="todas">Todas as congregações</option>';
   congs.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
   sel.value=cv||'todas';
+  renderDashboard();
   var eh='';ENTRY_STAGES.forEach(function(sid){var s=STAGES.find(function(x){return x.id===sid;});if(s)eh+=renderStageCard(s);});
   document.getElementById('entryGrid').innerHTML=eh;
   var lh='';LINEAR_STAGES.forEach(function(sid){var s=STAGES.find(function(x){return x.id===sid;});if(s)lh+=renderStageCard(s);});
   document.getElementById('linearGrid').innerHTML=lh;
+}
+
+function renderDashboard(){
+  var people=Store.getPeople();
+  var active = people.filter(function(p){ return p.stage !== 'membro'; });
+  var total = active.length || people.length;
+  var newToday = people.filter(function(p){
+    var d = new Date(p.createdAt || Date.now());
+    var diff = Date.now() - d.getTime();
+    return diff < 86400000;
+  }).length;
+  var growth = people.filter(function(p){ return p.stage === 'gc'; }).length;
+  var members = people.filter(function(p){ return p.stage === 'membro'; }).length;
+  var conversion = total ? Math.round((members / total) * 100) : 0;
+  var maxCount = Math.max(1, ...STAGES.map(function(s){
+    return people.filter(function(p){ return p.stage === s.id; }).length;
+  }));
+
+  var cards = [
+    { icon:'ti ti-users', bg:'var(--blue-100)', color:'var(--blue-600)', label:'Em acompanhamento', value: total, trend: '↑ 12%', tone:'up' },
+    { icon:'ti ti-user-plus', bg:'var(--green-100)', color:'var(--green)', label:'Novos hoje', value: newToday, trend: '+ hoje', tone:'up' },
+    { icon:'ti ti-rocket', bg:'var(--ember-100)', color:'var(--ember-dark)', label:'Grupo de crescimento', value: growth, trend: 'ativa', tone:'neutral' },
+    { icon:'ti ti-award', bg:'var(--green-100)', color:'var(--green)', label:'Membros', value: members, trend: conversion + '% conversão', tone:'up' },
+  ];
+
+  document.getElementById('dashboardStats').innerHTML = cards.map(function(card){
+    return '<div class="stat-card">'+
+      '<div class="stat-icon" style="background:'+card.bg+';color:'+card.color+'"><i class="'+card.icon+'"></i></div>'+ 
+      '<div class="stat-meta">'+
+      '<span>'+card.label+'</span><strong>'+card.value+'</strong>'+ 
+      '<div class="stat-trend '+card.tone+'">'+card.trend+'</div>'+
+      '</div></div>';
+  }).join('');
+
+  var funnel = STAGES.map(function(s){
+    var count = people.filter(function(p){ return p.stage === s.id; }).length;
+    return '<div class="funnel-item">'+
+      '<div class="funnel-label">'+s.label+'</div>'+ 
+      '<div class="funnel-track"><div class="funnel-bar '+(s.accent==='green'?'green':'')+'" style="width:' + Math.max(12, (count / maxCount) * 100) + '%"></div></div>'+ 
+      '<div class="funnel-qty">'+count+'</div>'+ 
+      '</div>';
+  }).join('');
+  document.getElementById('funnelList').innerHTML = funnel;
+
+  var recent = people.slice().sort(function(a,b){ return new Date(b.createdAt || 0) - new Date(a.createdAt || 0); }).slice(0,4);
+  document.getElementById('activityList').innerHTML = recent.map(function(p){
+    var stage = STAGES.find(function(s){ return s.id === p.stage; });
+    return '<div class="activity-item">'+avatarHtml(p,30)+'<div class="info"><strong>'+(p.nome||'?')+'</strong><small>'+ (stage ? stage.label : 'Cadastro') + ' · ' + daysSince(lastHistoryDate(p)) + '</small></div><span class="mini-pill">'+(p.stage==='membro'?'Membro':'Em fluxo')+'</span></div>';
+  }).join('') || '<p style="margin:0;color:var(--muted);font-size:12px;">Nenhuma atividade recente.</p>';
 }
 
 function renderStageCard(s){
