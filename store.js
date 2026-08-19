@@ -7,13 +7,13 @@
 // Escritas disparam para o Supabase em segundo plano (async).
 
 // --- Supabase ---
-var SUPABASE_URL = 'https://rhguimekoykfcfykgndn.supabase.co/rest/v1';
-var SUPABASE_KEY = 'sb_publishable_v9keqrRtBPeJiF2V-WeuTQ_HFnI9wOR';
+var SUPABASE_URL = 'https://kyxxlkqfzrrcikcajyjt.supabase.co/rest/v1/';
+var SUPABASE_KEY = 'sb_publishable_t3pBGGgcuGtAaKkNinOESw_wzC6Ruuq';
 
 // --- inChurch API ---
 var INCHURCH_BASE_URL = 'https://inradar.com.br/public';
-var INCHURCH_API_KEY = '36c34e00-f6c9-45de-b019-d3886147042b';
-var INCHURCH_API_SECRET = 'mgJIjJXVo7b3MvjqZQqztUnR0HEFjonRGJhTLX2TY9oWoS7WCm3kAfo6xK2EMryJ';
+var INCHURCH_API_KEY = '244f7c16-6a14-4128-8d1b-d2a3f1bf7ba8';
+var INCHURCH_API_SECRET = 'c9I8JkwQgKPzk1GlqdYBYbjysEcCXAyGVGtGBYR8Jmib0kE1DruHN20lvbjgSMfA';
 
 // --- Cache em memória ---
 var _peopleCache = [];
