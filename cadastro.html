@@ -64,13 +64,17 @@
           </div>
         </div>
         <label>Estado civil *</label>
-        <select id="estadoCivil">
+        <select id="estadoCivil" onchange="toggleConjugeCampo()">
           <option value="">Selecione</option>
           <option>Solteiro(a)</option>
           <option>Casado(a)</option>
           <option>Divorciado(a)</option>
           <option>Viúvo(a)</option>
         </select>
+        <div id="wrapConjuge" style="display:none">
+          <label>Nome do cônjuge *</label>
+          <input type="text" id="nomeConjuge" placeholder="Nome completo do(a) cônjuge">
+        </div>
       </div>
       <div id="wrapReconciliado" style="display:none">
         <label>Em qual igreja aceitou Jesus pela primeira vez? *</label>
@@ -139,6 +143,14 @@ function showToast(msg){
   t.textContent = msg; t.classList.add('show');
   setTimeout(function(){ t.classList.remove('show'); }, 2600);
 }
+function toggleConjugeCampo(){
+  var estadoCivil = document.getElementById('estadoCivil').value;
+  var wrap = document.getElementById('wrapConjuge');
+  var input = document.getElementById('nomeConjuge');
+  var mostrar = estadoCivil === 'Casado(a)';
+  wrap.style.display = mostrar ? 'block' : 'none';
+  if(!mostrar){ input.value = ''; }
+}
 function setCategoria(btn){
   document.querySelectorAll('#categoriaSeg button').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
@@ -176,6 +188,8 @@ function enviar(){
   if(!idade){ showToast('Preencha a idade.'); return; }
   var estadoCivil = document.getElementById('estadoCivil').value;
   if(!estadoCivil){ showToast('Selecione o estado civil.'); return; }
+  var nomeConjuge = document.getElementById('nomeConjuge').value.trim();
+  if(estadoCivil === 'Casado(a)' && !nomeConjuge){ showToast('Digite o nome do cônjuge.'); return; }
   if(categoriaAtual === 'reconciliado'){
     var igreja = document.getElementById('igrejaAnterior').value.trim();
     if(!igreja){ showToast('Preencha em qual igreja aceitou Jesus.'); return; }
@@ -205,6 +219,7 @@ function enviar(){
     bairro: bairro,
     idade: idade,
     estadoCivil: estadoCivil,
+    nomeConjuge: nomeConjuge,
     igrejaAnterior: document.getElementById('igrejaAnterior').value.trim(),
     temCarta: document.getElementById('temCarta').value,
     funcaoMinisterial: document.getElementById('funcaoMinisterial').value.trim(),
@@ -220,13 +235,14 @@ function novoCadastro(){
   var ids = ['nome','telefone','email','bairro','idade','igrejaAnterior','funcaoMinisterial'];
   ids.forEach(function(id){ document.getElementById(id).value = ''; });
   document.getElementById('estadoCivil').value = '';
+  document.getElementById('nomeConjuge').value = '';
   document.getElementById('temCarta').value = '';
   document.getElementById('quisGC').value = '';
   document.getElementById('quemColeta').value = '';
   document.getElementById('departamento').value = '';
   categoriaAtual = null;
   document.querySelectorAll('.seg button').forEach(function(b){ b.classList.remove('active'); });
-  var wraps = ['wrapComum','wrapReconciliado','wrapNovoMembro','wrapVisitante','wrapFuncao','wrapDepartamento'];
+  var wraps = ['wrapComum','wrapConjuge','wrapReconciliado','wrapNovoMembro','wrapVisitante','wrapFuncao','wrapDepartamento'];
   wraps.forEach(function(id){ document.getElementById(id).style.display = 'none'; });
   document.getElementById('successScreen').style.display = 'none';
   document.getElementById('formScreen').style.display = 'block';

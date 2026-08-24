@@ -228,7 +228,10 @@
           <p>Quem atende preenche por quem chegou — cai direto na etapa certa.</p>
           <div class="link-url" id="teamLink"></div>
         </div>
-        <button class="btn-outline" onclick="copyLink('teamLink')"><i class="ti ti-copy"></i>Copiar</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn-outline" onclick="openLink('teamLink')"><i class="ti ti-external-link"></i>Abrir</button>
+          <button class="btn-outline" onclick="copyLink('teamLink')"><i class="ti ti-copy"></i>Copiar</button>
+        </div>
       </div>
       <div class="link-card">
         <div class="ic" style="background:var(--blue-100);color:var(--blue-600)"><i class="ti ti-qrcode"></i></div>
@@ -237,7 +240,10 @@
           <p>Auto-preenchimento — coloque no cartãozinho de visitante.</p>
           <div class="link-url" id="visitorLink"></div>
         </div>
-        <button class="btn-outline" onclick="copyLink('visitorLink')"><i class="ti ti-copy"></i>Copiar</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn-outline" onclick="openLink('visitorLink')"><i class="ti ti-external-link"></i>Abrir</button>
+          <button class="btn-outline" onclick="copyLink('visitorLink')"><i class="ti ti-copy"></i>Copiar</button>
+        </div>
       </div>
     </div>
 
@@ -364,6 +370,7 @@ document.getElementById('teamLink').textContent=base+'cadastro.html';
 document.getElementById('visitorLink').textContent=base+'visitante.html';
 
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2600);}
+function openLink(id){var url=document.getElementById(id).textContent.trim();if(!url){return;}window.open(url, '_blank');}
 function copyLink(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(function(){showToast('Link copiado!');});}
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
@@ -554,11 +561,11 @@ function formatDateBR(iso){
   return new Date(iso).toLocaleDateString('pt-BR');
 }
 function peopleToCSV(list){
-  var headers=['Nome','WhatsApp','E-mail','Bairro','Idade','Estado civil','Etapa','Sub-etapa','Congregação','Departamento','Quem coletou','Cadastrado em','Última atualização','Dias na etapa atual','Pendente inChurch'];
+  var headers=['Nome','WhatsApp','E-mail','Bairro','Idade','Estado civil','Nome do cônjuge','Etapa','Sub-etapa','Congregação','Departamento','Quem coletou','Cadastrado em','Última atualização','Dias na etapa atual','Pendente inChurch'];
   var rows=list.map(function(p){
     var stage=STAGES.find(function(s){return s.id===p.stage;});
     var sub=p.subStage?((SUB_STAGES.find(function(s){return s.id===p.subStage;})||{}).label||p.subStage):'';
-    return [p.nome,p.telefone,p.email,p.bairro,p.idade,p.estadoCivil,stage?stage.label:p.stage,sub,p.congregacao,p.departamento,p.quemColeta,formatDateBR(p.createdAt),formatDateBR(lastHistoryDate(p)),daysSince(lastHistoryDate(p)),p.pendingSync?'Sim':'Não']
+    return [p.nome,p.telefone,p.email,p.bairro,p.idade,p.estadoCivil,p.nomeConjuge,stage?stage.label:p.stage,sub,p.congregacao,p.departamento,p.quemColeta,formatDateBR(p.createdAt),formatDateBR(lastHistoryDate(p)),daysSince(lastHistoryDate(p)),p.pendingSync?'Sim':'Não']
       .map(csvEscape).join(',');
   });
   return headers.join(',')+'\r\n'+rows.join('\r\n');
@@ -647,6 +654,7 @@ function openPerson(id){
   if(p.bairro)h+=fld('Bairro',p.bairro);
   if(p.idade)h+=fld('Idade',p.idade);
   if(p.estadoCivil)h+=fld('Estado civil',p.estadoCivil);
+  if(p.nomeConjuge)h+=fld('Nome do cônjuge',p.nomeConjuge);
   if(p.igrejaAnterior)h+=fld('Igreja anterior',p.igrejaAnterior);
   if(p.temCarta)h+=fld('Carta de transferência',p.temCarta);
   if(p.funcaoMinisterial)h+=fld('Função ministerial',p.funcaoMinisterial);

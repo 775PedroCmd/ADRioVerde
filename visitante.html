@@ -55,13 +55,17 @@
         </div>
       </div>
       <label>Estado civil *</label>
-      <select id="estadoCivil">
+      <select id="estadoCivil" onchange="toggleConjugeCampo()">
         <option value="">Selecione</option>
         <option>Solteiro(a)</option>
         <option>Casado(a)</option>
         <option>Divorciado(a)</option>
         <option>Viúvo(a)</option>
       </select>
+      <div id="wrapConjuge" style="display:none">
+        <label>Nome do cônjuge *</label>
+        <input type="text" id="nomeConjuge" placeholder="Nome completo do(a) cônjuge">
+      </div>
       <label>Gostaria de participar de um Grupo de Crescimento? *</label>
       <div class="seg" id="segGC">
         <button type="button" data-v="Sim" onclick="setGC(this)">Sim</button>
@@ -89,6 +93,14 @@ function showToast(msg){
   t.textContent = msg; t.classList.add('show');
   setTimeout(function(){ t.classList.remove('show'); }, 2600);
 }
+function toggleConjugeCampo(){
+  var estadoCivil = document.getElementById('estadoCivil').value;
+  var wrap = document.getElementById('wrapConjuge');
+  var input = document.getElementById('nomeConjuge');
+  var mostrar = estadoCivil === 'Casado(a)';
+  wrap.style.display = mostrar ? 'block' : 'none';
+  if(!mostrar){ input.value = ''; }
+}
 function setGC(btn){
   document.querySelectorAll('#segGC button').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
@@ -105,6 +117,8 @@ function enviar(){
   if(!idade){ showToast('Preencha sua idade.'); return; }
   var estadoCivil = document.getElementById('estadoCivil').value;
   if(!estadoCivil){ showToast('Selecione seu estado civil.'); return; }
+  var nomeConjuge = document.getElementById('nomeConjuge').value.trim();
+  if(estadoCivil === 'Casado(a)' && !nomeConjuge){ showToast('Digite o nome do cônjuge.'); return; }
   var quisGC = document.getElementById('quisGC').value;
   if(!quisGC){ showToast('Selecione se gostaria de participar de um GC.'); return; }
   Store.addPerson({
@@ -114,6 +128,7 @@ function enviar(){
     bairro: bairro,
     idade: idade,
     estadoCivil: estadoCivil,
+    nomeConjuge: nomeConjuge,
     quisGC: quisGC,
     pedidoOracao: document.getElementById('pedidoOracao').value.trim(),
     quemColeta: 'Autocadastro (QR code)',
