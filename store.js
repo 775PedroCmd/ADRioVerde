@@ -291,7 +291,12 @@ const Store = {
     console.log('[inChurch] Iniciando pré-cadastro para:', person.nome);
     try{
       var auth = this.makeAuthHeader();
-      var body = { name: person.nome, email: person.email, phone: person.telefone };
+      var body = {
+        full_name: person.nome,
+        email: person.email,
+        phone: person.telefone,
+        church_id: 36014
+      };
       console.log('[inChurch] URL:', INCHURCH_BASE_URL + '/v1/people/');
       console.log('[inChurch] Body:', JSON.stringify(body));
       var res = await fetch(INCHURCH_BASE_URL + '/v1/people/', {
@@ -319,7 +324,12 @@ const Store = {
         var res2 = await fetch(proxyUrl, {
           method: 'POST',
           headers: { 'Authorization': auth2, 'Content-Type': 'application/json', 'X-API-Version': 'v1' },
-          body: JSON.stringify({ name: person.nome, email: person.email, phone: person.telefone })
+          body: JSON.stringify({
+            full_name: person.nome,
+            email: person.email,
+            phone: person.telefone,
+            church_id: 36014
+          })
         });
         console.log('[inChurch] Proxy status:', res2.status);
         if(res2.ok){
