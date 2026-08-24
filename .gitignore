@@ -1,0 +1,25 @@
+# Supabase local
+supabase/.temp/
+
+# Node modules
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+.dist/

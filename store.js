@@ -10,7 +10,8 @@
 var SUPABASE_URL = 'https://kyxxlkqfzrrcikcajyjt.supabase.co/rest/v1/';
 var SUPABASE_KEY = 'sb_publishable_t3pBGGgcuGtAaKkNinOESw_wzC6Ruuq';
 
-// --- inChurch API ---
+// --- inChurch API via proxy (evita CORS no navegador) ---
+var INCHURCH_PROXY_URL = 'https://kyxxlkqfzrrcikcajyjt.supabase.co/functions/v1/inchurch-proxy';
 var INCHURCH_BASE_URL = 'https://inradar.com.br/public';
 var INCHURCH_API_KEY = '244f7c16-6a14-4128-8d1b-d2a3f1bf7ba8';
 var INCHURCH_API_SECRET = 'c9I8JkwQgKPzk1GlqdYBYbjysEcCXAyGVGtGBYR8Jmib0kE1DruHN20lvbjgSMfA';
@@ -101,6 +102,7 @@ function toDb(p){
     bairro: p.bairro || '',
     idade: p.idade || '',
     estado_civil: p.estadoCivil || '',
+    nome_conjuge: p.nomeConjuge || '',
     igreja_anterior: p.igrejaAnterior || '',
     tem_carta: p.temCarta || '',
     funcao_ministerial: p.funcaoMinisterial || '',
@@ -134,6 +136,7 @@ function fromDb(row){
     bairro: row.bairro || '',
     idade: String(row.idade || ''),
     estadoCivil: row.estado_civil || '',
+    nomeConjuge: row.nome_conjuge || '',
     igrejaAnterior: row.igreja_anterior || '',
     temCarta: row.tem_carta || '',
     funcaoMinisterial: row.funcao_ministerial || '',
@@ -185,6 +188,7 @@ const Store = {
       bairro: data.bairro || '',
       idade: data.idade || '',
       estadoCivil: data.estadoCivil || '',
+      nomeConjuge: data.nomeConjuge || '',
       igrejaAnterior: data.igrejaAnterior || '',
       temCarta: data.temCarta || '',
       funcaoMinisterial: data.funcaoMinisterial || '',
@@ -287,13 +291,17 @@ const Store = {
   async syncPreCadastro(person){
     console.log('[inChurch] Iniciando pré-cadastro para:', person.nome);
     try{
-      var auth = this.makeAuthHeader();
-      var body = { name: person.nome, email: person.email, phone: person.telefone };
-      console.log('[inChurch] URL:', INCHURCH_BASE_URL + '/v1/people/');
+      var body = {
+        full_name: person.nome,
+        email: person.email,
+        phone: person.telefone,
+        church_id: 36014
+      };
+      console.log('[inChurch] URL:', INCHURCH_PROXY_URL);
       console.log('[inChurch] Body:', JSON.stringify(body));
-      var res = await fetch(INCHURCH_BASE_URL + '/v1/people/', {
+      var res = await fetch(INCHURCH_PROXY_URL, {
         method: 'POST',
-        headers: { 'Authorization': auth, 'Content-Type': 'application/json', 'X-API-Version': 'v1' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
       console.log('[inChurch] Status:', res.status);
@@ -307,31 +315,8 @@ const Store = {
       console.log('[inChurch] Sucesso! ID:', json.id);
       this.updatePerson(person.id, { pendingSync: false, inchurchId: json.id || null, syncError: '' });
     }catch(err){
-      console.error('[inChurch] Falha (provável CORS):', err);
-      // Tenta via proxy CORS como fallback
-      try{
-        console.log('[inChurch] Tentando via proxy CORS...');
-        var auth2 = this.makeAuthHeader();
-        var proxyUrl = 'https://corsproxy.io/?url=' + encodeURIComponent(INCHURCH_BASE_URL + '/v1/people/');
-        var res2 = await fetch(proxyUrl, {
-          method: 'POST',
-          headers: { 'Authorization': auth2, 'Content-Type': 'application/json', 'X-API-Version': 'v1' },
-          body: JSON.stringify({ name: person.nome, email: person.email, phone: person.telefone })
-        });
-        console.log('[inChurch] Proxy status:', res2.status);
-        if(res2.ok){
-          var json2 = await res2.json();
-          console.log('[inChurch] Proxy sucesso! ID:', json2.id);
-          this.updatePerson(person.id, { pendingSync: false, inchurchId: json2.id || null, syncError: '' });
-          return;
-        }
-        var errText2 = await res2.text();
-        console.error('[inChurch] Proxy erro:', res2.status, errText2);
-        this.updatePerson(person.id, { pendingSync: true, syncError: errText2 });
-      }catch(err2){
-        console.error('[inChurch] Proxy também falhou:', err2);
-        this.updatePerson(person.id, { pendingSync: true, syncError: String(err2) });
-      }
+      console.error('[inChurch] Falha ao chamar proxy:', err);
+      this.updatePerson(person.id, { pendingSync: true, syncError: String(err) });
     }
   },
 
