@@ -357,4 +357,32 @@ function daysSince(dateStr){
 function lastHistoryDate(p){
   if(p.history && p.history.length) return p.history[p.history.length-1].date;
   return p.createdAt;
+}ction(w){ return w[0]; }).join('').toUpperCase();
+}
+function avatarHtml(p, size){
+  if(p.foto){ return '<img class="avatar" src="'+p.foto+'" style="width:'+size+'px;height:'+size+'px">'; }
+  return '<div class="avatar" style="width:'+size+'px;height:'+size+'px;font-size:'+Math.round(size*0.36)+'px">'+initials(p.nome)+'</div>';
+}
+function daysSince(dateStr){
+  var d = Math.floor((Date.now() - new Date(dateStr).getTime())/86400000);
+  if(d === 0 || d === -1) return 'hoje';
+  if(d === 1) return 'há 1 dia';
+  return 'há '+d+' dias';
+}
+function lastHistoryDate(p){
+  if(p.history && p.history.length) return p.history[p.history.length-1].date;
+  return p.createdAt;
+}
+>>>>>>> 3467d6d4d94e6a91c2cfdb4b52365ae73c753a07
+me)+'</div>';
+}
+function daysSince(dateStr){
+  var d = Math.floor((Date.now() - new Date(dateStr).getTime())/86400000);
+  if(d === 0 || d === -1) return 'hoje';
+  if(d === 1) return 'há 1 dia';
+  return 'há '+d+' dias';
+}
+function lastHistoryDate(p){
+  if(p.history && p.history.length) return p.history[p.history.length-1].date;
+  return p.createdAt;
 }

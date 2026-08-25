@@ -28,13 +28,33 @@ Deno.serve(async (req) => {
       );
     }
 
-    // --- Build body for inChurch API ---
-    const inChurchBody = {
+    // --- Build body for inChurch API (filtrar null/undefined) ---
+    const inChurchBody: Record<string, any> = {
       full_name: payload.full_name,
       email: payload.email,
-      phone: payload.phone,
+      phone: payload.phone ?? null,
+      mobile_phone: payload.mobile_phone ?? null,
+      has_whatsapp: payload.has_whatsapp ?? false,
       church_id: payload.church_id ?? 36014,
+      status: payload.status ?? 'pending',
+      church_profile: payload.church_profile ?? 'visitor',
+      birthday: payload.birthday ?? null,
+      marital_status: payload.marital_status ?? null,
+      gender: payload.gender ?? null,
+      occupation: payload.occupation ?? null,
+      education_level: payload.education_level ?? null,
+      is_active: payload.is_active ?? true,
+      first_visit_date: payload.first_visit_date ?? null,
+      accepted_jesus: payload.accepted_jesus ?? false,
+      decision_date: payload.decision_date ?? null,
     };
+
+    // Remover campos null/undefined
+    Object.keys(inChurchBody).forEach(key => {
+      if (inChurchBody[key] === null || inChurchBody[key] === undefined) {
+        delete inChurchBody[key];
+      }
+    });
 
     console.log('[inChurch Proxy] Enviando para API:', JSON.stringify(inChurchBody));
 
