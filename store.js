@@ -323,7 +323,14 @@ const Store = {
       var res = await fetch(INCHURCH_PROXY_URL + '/' + person.inchurchId + '/', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_member: true, church_id: INCHURCH_CHURCH_ID })
+        body: JSON.stringify({
+          full_name: person.nome,
+          is_member: true,
+          status: 'active',
+          church_profile: 'member',
+          accepted_jesus: true,
+          church_id: INCHURCH_CHURCH_ID
+        })
       });
       console.log('[inChurch] Status (membro):', res.status);
       if(!res.ok){
