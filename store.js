@@ -12,9 +12,7 @@ var SUPABASE_KEY = 'sb_publishable_t3pBGGgcuGtAaKkNinOESw_wzC6Ruuq';
 
 // --- inChurch API via proxy (evita CORS no navegador) ---
 var INCHURCH_PROXY_URL = 'https://kyxxlkqfzrrcikcajyjt.supabase.co/functions/v1/inchurch-proxy';
-var INCHURCH_BASE_URL = 'https://inradar.com.br/public';
-var INCHURCH_API_KEY = '244f7c16-6a14-4128-8d1b-d2a3f1bf7ba8';
-var INCHURCH_API_SECRET = 'c9I8JkwQgKPzk1GlqdYBYbjysEcCXAyGVGtGBYR8Jmib0kE1DruHN20lvbjgSMfA';
+var INCHURCH_CHURCH_ID = 36014;
 
 // --- Cache em memória ---
 var _peopleCache = [];
@@ -283,11 +281,6 @@ const Store = {
     localStorage.setItem(this._keyDeptos, JSON.stringify(list));
   },
 
-  makeAuthHeader(){
-    var raw = INCHURCH_API_KEY + ':' + INCHURCH_API_SECRET;
-    return 'Basic ' + btoa(raw);
-  },
-
   async syncPreCadastro(person){
     console.log('[inChurch] Iniciando pré-cadastro para:', person.nome);
     try{
@@ -295,7 +288,7 @@ const Store = {
         full_name: person.nome,
         email: person.email,
         phone: person.telefone,
-        church_id: 36014
+        church_id: INCHURCH_CHURCH_ID
       };
       console.log('[inChurch] URL:', INCHURCH_PROXY_URL);
       console.log('[inChurch] Body:', JSON.stringify(body));
@@ -322,16 +315,17 @@ const Store = {
 
   async syncMembroFinal(person){
     try{
-      var auth = this.makeAuthHeader();
       if(!person.inchurchId){
         this.updatePerson(person.id, { pendingSyncMembro: true, syncError: 'Sem inchurchId' });
         return;
       }
-      var res = await fetch(INCHURCH_BASE_URL + '/v1/people/' + person.inchurchId + '/', {
+      console.log('[inChurch] Marcando como membro:', person.nome, '(ID:', person.inchurchId, ')');
+      var res = await fetch(INCHURCH_PROXY_URL + '/' + person.inchurchId + '/', {
         method: 'PATCH',
-        headers: { 'Authorization': auth, 'Content-Type': 'application/json', 'X-API-Version': 'v1' },
-        body: JSON.stringify({ is_member: true })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_member: true, church_id: INCHURCH_CHURCH_ID })
       });
+      console.log('[inChurch] Status (membro):', res.status);
       if(!res.ok){
         var errText = await res.text();
         console.error('inChurch API erro (membro):', res.status, errText);
