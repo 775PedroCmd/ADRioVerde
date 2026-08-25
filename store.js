@@ -284,12 +284,22 @@ const Store = {
   async syncPreCadastro(person){
     console.log('[inChurch] Iniciando pré-cadastro para:', person.nome);
     try{
+      var churchProfileMap = {
+        'visitante': 'visitor',
+        'convertido': 'new_convert',
+        'reconciliado': 'reconciling',
+        'novo_membro': 'member'
+      };
+      
       var body = {
         full_name: person.nome,
         email: person.email,
         phone: person.telefone,
         church_id: INCHURCH_CHURCH_ID,
-        status: 'pending'
+        status: 'pending',
+        church_profile: churchProfileMap[person.stage] || 'visitor',
+        accepted_jesus: person.stage !== 'visitante',
+        first_visit_date: new Date().toISOString().split('T')[0]
       };
       console.log('[inChurch] URL:', INCHURCH_PROXY_URL);
       console.log('[inChurch] Body:', JSON.stringify(body));
