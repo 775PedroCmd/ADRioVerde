@@ -288,7 +288,8 @@ const Store = {
         full_name: person.nome,
         email: person.email,
         phone: person.telefone,
-        church_id: INCHURCH_CHURCH_ID
+        church_id: INCHURCH_CHURCH_ID,
+        status: 'pending'
       };
       console.log('[inChurch] URL:', INCHURCH_PROXY_URL);
       console.log('[inChurch] Body:', JSON.stringify(body));
