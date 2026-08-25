@@ -281,48 +281,57 @@ const Store = {
     localStorage.setItem(this._keyDeptos, JSON.stringify(list));
   },
 
- async syncPreCadastro(person) {
-  console.log('[inChurch] Criando pré-cadastro para:', person.nome);
-  try {
-    var churchProfileMap = {
-      'visitante': 'visitor',
-      'convertido': 'frequent',
-      'reconciliado': 'frequent',
-      'novo_membro': 'member'
-    };
-
-    var body = {
-      full_name: person.nome,
-      church_id: INCHURCH_CHURCH_ID,
-      status: 'pending', // <--- Força a entrada na fila de pendentes
-      church_profile: churchProfileMap[person.stage] || 'visitor',
-      email: person.email || null,
-      phone: person.telefone || null,
-      accepted_jesus: person.stage !== 'visitante',
-      first_visit_date: new Date().toISOString().split('T')[0]
-    };
-
-    var res = await fetch(INCHURCH_PROXY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-
-    if (!res.ok) {
-      var errText = await res.text();
-      console.error('[inChurch] Erro na requisição:', res.status, errText);
-      this.updatePerson(person.id, { pendingSync: true, syncError: errText });
-      return;
+  async syncPreCadastro(person){
+    console.log('[inChurch] Iniciando pré-cadastro para:', person.nome);
+    try{
+      var churchProfileMap = {
+        'visitante': 'visitor',      // novo visitante
+        'convertido': 'frequent',     // visitante que aceitou Jesus (ainda pending)
+        'reconciliado': 'frequent',  // frequentista reconciliado
+        'novo_membro': 'member'      // membro completo
+      };
+      
+      // Status fluxo de aprovação
+      var statusMap = {
+        'visitante': 'pending',
+        'convertido': 'pending',
+        'reconciliado': 'approved',
+        'novo_membro': 'approved'
+      };
+      
+      var body = {
+        full_name: person.nome,
+        email: person.email,
+        phone: person.telefone,
+        church_id: INCHURCH_CHURCH_ID,
+        status: statusMap[person.stage] || 'pending',
+        church_profile: churchProfileMap[person.stage] || 'visitor',
+        accepted_jesus: person.stage !== 'visitante',
+        first_visit_date: new Date().toISOString().split('T')[0]
+      };
+      console.log('[inChurch] URL:', INCHURCH_PROXY_URL);
+      console.log('[inChurch] Body:', JSON.stringify(body));
+      var res = await fetch(INCHURCH_PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      console.log('[inChurch] Status:', res.status);
+      if(!res.ok){
+        var errText = await res.text();
+        console.error('[inChurch] Erro:', res.status, errText);
+        this.updatePerson(person.id, { pendingSync: true, syncError: errText });
+        return;
+      }
+      var json = await res.json();
+      console.log('[inChurch] Sucesso! ID:', json.id);
+      this.updatePerson(person.id, { pendingSync: false, inchurchId: json.id || null, syncError: '' });
+    }catch(err){
+      console.error('[inChurch] Falha ao chamar proxy:', err);
+      this.updatePerson(person.id, { pendingSync: true, syncError: String(err) });
     }
+  },
 
-    var json = await res.json();
-    console.log('[inChurch] Solicitado com sucesso (Pendente). ID:', json.id);
-    this.updatePerson(person.id, { pendingSync: false, inchurchId: json.id || null, syncError: '' });
-  } catch (err) {
-    console.error('[inChurch] Erro de rede ou proxy:', err);
-    this.updatePerson(person.id, { pendingSync: true, syncError: String(err) });
-  }
-},
   async syncMembroFinal(person){
     try{
       if(!person.inchurchId){
