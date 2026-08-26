@@ -293,31 +293,31 @@ const Store = {
       'reconciliado': 'frequent',
       'novo_membro': 'member'
     };
-    var statusMap = {
-      'visitante': 'pending',
-      'convertido': 'pending',
-      'reconciliado': 'approved',
-      'novo_membro': 'approved'
-    };
 
-    // Tratamento basico do telefone para nao falhar a validacao interna
     var phoneClean = (person.telefone || '').replace(/\D/g, '');
     if (phoneClean && !phoneClean.startsWith('55')) {
       phoneClean = '55' + phoneClean;
     }
 
+    var today = new Date().toISOString().split('T')[0];
+
     var body = {
       full_name: person.nome,
       church_id: INCHURCH_CHURCH_ID,
-      status: statusMap[person.stage] || 'pending',
+      
+      status: 'pending', 
+      
       church_profile: churchProfileMap[person.stage] || 'visitor',
-      accepted_jesus: person.stage !== 'visitante',
-      first_visit_date: new Date().toISOString().split('T')[0]
+      accepted_jesus: person.stage === 'convertido' || person.stage === 'reconciliado',
+      
+      first_visit_date: today,
+      decision_date: (person.stage === 'convertido' || person.stage === 'reconciliado') ? today : null
     };
 
     if (person.email) body.email = person.email;
     if (phoneClean) body.mobile_phone = phoneClean;
     if (person.estadoCivil) body.marital_status = person.estadoCivil;
+    if (person.origem) body.visit_reason = person.origem;
 
     var res = await fetch(INCHURCH_PROXY_URL, {
       method: 'POST',
@@ -331,8 +331,9 @@ const Store = {
       this.updatePerson(person.id, { pendingSync: true, syncError: errText });
       return;
     }
+    
     var json = await res.json();
-    this.updatePerson(person.id, { pendingSync: false, inchurchId: json.id || json._id || null, syncError: '' });
+    this.updatePerson(person.id, { pendingSync: false, inchurchId: json.id || null, syncError: '' });
   } catch(err){
     console.error('[inChurch] Falha ao chamar proxy:', err);
     this.updatePerson(person.id, { pendingSync: true, syncError: String(err) });
@@ -349,7 +350,7 @@ const Store = {
       // status só aceita pending | approved | refused — "active" não existe no schema oficial.
       // O campo "is_member" também não existe na API; quem marca a pessoa como membro
       // de fato é a combinação church_profile: "member" + status: "approved".
-      var res = await fetch(INCHURCH_PROXY_URL + '/' + person.inchurchId + '/', {
+      var res = await fetch(INCHURCH_PROXY_URL + '/' + person.inchurchId , {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
