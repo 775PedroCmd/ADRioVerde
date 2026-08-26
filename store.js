@@ -284,7 +284,7 @@ const Store = {
     localStorage.setItem(this._keyDeptos, JSON.stringify(list));
   },
 
- async syncPreCadastro(person){
+async syncPreCadastro(person){
   console.log('[inChurch] Iniciando pré-cadastro para:', person.nome);
   try {
     var phoneClean = (person.telefone || '').replace(/\D/g, '');
@@ -295,29 +295,33 @@ const Store = {
     var today = new Date().toISOString().split('T')[0];
     var isDecisao = person.stage === 'convertido' || person.stage === 'reconciliado';
 
-    // Para aparecer na aba "NOVAS PESSOAS", forçamos church_profile como "visitor"
+    // Tratamento defensivo para evitar enviar strings vazias ou nulas
+    var fullName = (person && person.nome && person.nome.trim()) ? person.nome.trim() : 'Sem Nome';
+
+    // Body limpo com os campos que a API REST /v1/people/ aceita
     var body = {
-      full_name: person.nome,
-      church_id: INCHURCH_CHURCH_ID,
-      event:'people.create_requested',
-      status: 'pending',              // Força cair na fila de aprovação
-      church_profile: 'visitor',     // FORÇA 'visitor' PARA IR PARA "NOVAS PESSOAS"
+      full_name: fullName,
+      church_id: INCHURCH_CHURCH_ID || 36014,
+      status: 'pending',
+      church_profile: 'visitor',
       accepted_jesus: isDecisao,
-      first_visit_date: today,
-      decision_date: isDecisao ? today : null
+      first_visit_date: today
     };
+
+    // Adiciona decision_date APENAS se for uma decisão (nunca envia null)
+    if (isDecisao) {
+      body.decision_date = today;
+    }
 
     if (person.email) body.email = person.email;
     if (phoneClean) body.mobile_phone = phoneClean;
     
-    // Mapeamento simples de marital_status
     if (person.estadoCivil) {
       var ms = person.estadoCivil.toLowerCase();
       if (ms.includes('solteir')) body.marital_status = 'single';
       else if (ms.includes('casad')) body.marital_status = 'married';
       else if (ms.includes('divorci')) body.marital_status = 'divorced';
       else if (ms.includes('viuv')) body.marital_status = 'widowed';
-      else body.marital_status = person.estadoCivil;
     }
 
     if (person.origem) body.visit_reason = person.origem;
