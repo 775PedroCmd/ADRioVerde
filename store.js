@@ -14,7 +14,7 @@ var SUPABASE_KEY = 'sb_publishable_t3pBGGgcuGtAaKkNinOESw_wzC6Ruuq';
 // IMPORTANTE: o path completo precisa ir até /v1/people, pois o proxy
 // (index.ts no Supabase) apenas repassa tudo que vem depois de
 // "/inchurch-proxy" direto para a API do inChurch (inradar.com.br).
-var INCHURCH_PROXY_URL = 'https://kyxxlkqfzrrcikcajyjt.supabase.co/functions/v1/inchurch-proxy/v1/people';
+var INCHURCH_PROXY_URL = 'https://kyxxlkqfzrrcikcajyjt.supabase.co/functions/v1/inchurch-proxy';
 var INCHURCH_CHURCH_ID = 36014;
 
 // --- Cache em memória ---
