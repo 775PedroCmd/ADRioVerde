@@ -11,7 +11,10 @@ var SUPABASE_URL = 'https://kyxxlkqfzrrcikcajyjt.supabase.co/rest/v1/';
 var SUPABASE_KEY = 'sb_publishable_t3pBGGgcuGtAaKkNinOESw_wzC6Ruuq';
 
 // --- inChurch API via proxy (evita CORS no navegador) ---
-var INCHURCH_PROXY_URL = 'https://kyxxlkqfzrrcikcajyjt.supabase.co/functions/v1/inchurch-proxy';
+// IMPORTANTE: o path completo precisa ir até /v1/people, pois o proxy
+// (index.ts no Supabase) apenas repassa tudo que vem depois de
+// "/inchurch-proxy" direto para a API do inChurch (inradar.com.br).
+var INCHURCH_PROXY_URL = 'https://kyxxlkqfzrrcikcajyjt.supabase.co/functions/v1/inchurch-proxy/v1/people';
 var INCHURCH_CHURCH_ID = 36014;
 
 // --- Cache em memória ---
@@ -290,7 +293,7 @@ const Store = {
         'reconciliado': 'frequent',  // frequentista reconciliado
         'novo_membro': 'member'      // membro completo
       };
-      
+
       // Status fluxo de aprovação
       var statusMap = {
         'visitante': 'pending',
@@ -298,11 +301,11 @@ const Store = {
         'reconciliado': 'approved',
         'novo_membro': 'approved'
       };
-      
+
       var body = {
         full_name: person.nome,
         email: person.email,
-        phone: person.telefone,
+        mobile_phone: person.telefone,
         church_id: INCHURCH_CHURCH_ID,
         status: statusMap[person.stage] || 'pending',
         church_profile: churchProfileMap[person.stage] || 'visitor',
