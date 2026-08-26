@@ -314,7 +314,7 @@ const Store = {
       };
       console.log('[inChurch] URL:', INCHURCH_PROXY_URL);
       console.log('[inChurch] Body:', JSON.stringify(body));
-      var res = await fetch(INCHURCH_PROXY_URL, {
+      var res = await fetch(INCHURCH_PROXY_URL + '/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
