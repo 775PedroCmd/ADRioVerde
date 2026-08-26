@@ -287,14 +287,15 @@ const Store = {
   async syncPreCadastro(person){
     console.log('[inChurch] Iniciando pré-cadastro para:', person.nome);
     try{
+      // Mapeamentos conforme os enums oficiais da API (docs.inchurch.com.br/api/people):
+      // status aceita apenas: pending | approved | refused
+      // church_profile aceita apenas: visitor | frequent | member
       var churchProfileMap = {
-        'visitante': 'visitor',      // novo visitante
-        'convertido': 'frequent',     // visitante que aceitou Jesus (ainda pending)
-        'reconciliado': 'frequent',  // frequentista reconciliado
-        'novo_membro': 'member'      // membro completo
+        'visitante': 'visitor',
+        'convertido': 'frequent',
+        'reconciliado': 'frequent',
+        'novo_membro': 'member'
       };
-
-      // Status fluxo de aprovação
       var statusMap = {
         'visitante': 'pending',
         'convertido': 'pending',
@@ -312,9 +313,11 @@ const Store = {
         accepted_jesus: person.stage !== 'visitante',
         first_visit_date: new Date().toISOString().split('T')[0]
       };
+      if(person.estadoCivil){ body.marital_status = person.estadoCivil; }
+
       console.log('[inChurch] URL:', INCHURCH_PROXY_URL);
       console.log('[inChurch] Body:', JSON.stringify(body));
-      var res = await fetch(INCHURCH_PROXY_URL + '/', {
+      var res = await fetch(INCHURCH_PROXY_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -342,15 +345,18 @@ const Store = {
         return;
       }
       console.log('[inChurch] Marcando como membro:', person.nome, '(ID:', person.inchurchId, ')');
+      // status só aceita pending | approved | refused — "active" não existe no schema oficial.
+      // O campo "is_member" também não existe na API; quem marca a pessoa como membro
+      // de fato é a combinação church_profile: "member" + status: "approved".
       var res = await fetch(INCHURCH_PROXY_URL + '/' + person.inchurchId + '/', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           full_name: person.nome,
-          is_member: true,
-          status: 'active',
+          status: 'approved',
           church_profile: 'member',
           accepted_jesus: true,
+          is_active: true,
           church_id: INCHURCH_CHURCH_ID
         })
       });
