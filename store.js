@@ -285,60 +285,53 @@ const Store = {
   },
 
  async syncPreCadastro(person){
-  console.log('[inChurch] Iniciando pré-cadastro para:', person.nome);
-  try {
-    var churchProfileMap = {
-      'visitante': 'visitor',
-      'convertido': 'frequent',
-      'reconciliado': 'frequent',
-      'novo_membro': 'member'
-    };
+    console.log('[inChurch] Enviando evento de solicitação para:', person.nome);
+    try {
+      var today = new Date().toISOString().split('T')[0];
+      var isDecisao = person.stage === 'convertido' || person.stage === 'reconciliado';
 
-    var phoneClean = (person.telefone || '').replace(/\D/g, '');
-    if (phoneClean && !phoneClean.startsWith('55')) {
-      phoneClean = '55' + phoneClean;
+      var phoneClean = (person.telefone || '').replace(/\D/g, '');
+      if (phoneClean) phoneClean = '55' + phoneClean;
+
+      // Payload com Envelope do Evento
+      var body = {
+        id: "req_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
+        event: "people.create_requested",
+        timestamp: new Date().toISOString(),
+        data: {
+          full_name: person.nome,
+          church_id: INCHURCH_CHURCH_ID,
+          status: "pending",
+          church_profile: "visitor",
+          accepted_jesus: isDecisao,
+          first_visit_date: today,
+          email: person.email || undefined,
+          mobile_phone: phoneClean || undefined
+        }
+      };
+
+      var res = await fetch(INCHURCH_PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if(!res.ok){
+        var errText = await res.text();
+        console.error('[inChurch] Erro:', res.status, errText);
+        this.updatePerson(person.id, { pendingSync: true, syncError: errText });
+        return;
+      }
+      
+      var json = await res.json();
+      console.log('[inChurch] Solicitação enviada! Resposta:', json);
+      var inId = (json.data && json.data.id) || json.id || null;
+      this.updatePerson(person.id, { pendingSync: false, inchurchId: inId, syncError: '' });
+    } catch(err){
+      console.error('[inChurch] Falha ao chamar proxy:', err);
+      this.updatePerson(person.id, { pendingSync: true, syncError: String(err) });
     }
-
-    var today = new Date().toISOString().split('T')[0];
-
-    var body = {
-      full_name: person.nome,
-      church_id: INCHURCH_CHURCH_ID,
-      
-      status: 'pending', 
-      
-      church_profile: churchProfileMap[person.stage] || 'visitor',
-      accepted_jesus: person.stage === 'convertido' || person.stage === 'reconciliado',
-      
-      first_visit_date: today,
-      decision_date: (person.stage === 'convertido' || person.stage === 'reconciliado') ? today : null
-    };
-
-    if (person.email) body.email = person.email;
-    if (phoneClean) body.mobile_phone = phoneClean;
-    if (person.estadoCivil) body.marital_status = person.estadoCivil;
-    if (person.origem) body.visit_reason = person.origem;
-
-    var res = await fetch(INCHURCH_PROXY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-
-    if(!res.ok){
-      var errText = await res.text();
-      console.error('[inChurch] Erro:', res.status, errText);
-      this.updatePerson(person.id, { pendingSync: true, syncError: errText });
-      return;
-    }
-    
-    var json = await res.json();
-    this.updatePerson(person.id, { pendingSync: false, inchurchId: json.id || null, syncError: '' });
-  } catch(err){
-    console.error('[inChurch] Falha ao chamar proxy:', err);
-    this.updatePerson(person.id, { pendingSync: true, syncError: String(err) });
-  }
-},
+  },
 
   async syncMembroFinal(person){
     try{
