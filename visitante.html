@@ -26,8 +26,18 @@
     width:74px;height:74px;border-radius:50%;background:var(--green-100);color:var(--green);
     display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 18px;
   }
+  .success .ic svg{width:38px;height:38px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+  .success.is-visible .ic{animation:confirmation-pop .65s cubic-bezier(.2,.9,.3,1.25) both;}
+  .success.is-visible .ic svg path{stroke-dasharray:24;stroke-dashoffset:24;animation:confirmation-check .45s .35s ease-out forwards;}
+  .success.is-visible h2,.success.is-visible p{animation:confirmation-rise .5s .18s ease-out both;}
+  .success.is-visible .video-label,.success.is-visible .welcome-video{animation:confirmation-rise .55s .5s ease-out both;}
+  @keyframes confirmation-pop{0%{opacity:0;transform:scale(.35) rotate(-12deg)}70%{opacity:1;transform:scale(1.1) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
+  @keyframes confirmation-check{to{stroke-dashoffset:0}}
+  @keyframes confirmation-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
   .success h2{margin:0 0 8px;font-size:19px;}
   .success p{color:var(--muted);font-size:13.5px;margin:0 0 24px;}
+  .video-label{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 10px;color:var(--blue-600);font-size:12px;font-weight:700;}
+  .video-label svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .welcome-video{width:100%;aspect-ratio:16/9;border:0;border-radius:12px;box-shadow:0 8px 22px rgba(11,79,168,.18);}
 </style>
 </head>
@@ -76,9 +86,10 @@
     </div>
   </div>
   <div class="success" id="successScreen">
-    <div class="ic"><i class="ti ti-check"></i></div>
+    <div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg></div>
     <h2>Recebemos seus dados!</h2>
     <p>Foi muito bom ter você com a gente. Em breve alguém da nossa equipe vai te procurar.</p>
+    <div class="video-label"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m10 8 5 4-5 4z" fill="currentColor" stroke="none"></path></svg><span>Mensagem de boas-vindas</span></div>
     <iframe id="welcomeVideo" class="welcome-video" title="Mensagem de boas-vindas" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
   </div>
 </div>
@@ -125,6 +136,7 @@ function enviar(){
   });
   document.getElementById('formScreen').style.display = 'none';
   document.getElementById('successScreen').style.display = 'block';
+  document.getElementById('successScreen').classList.add('is-visible');
   document.getElementById('welcomeVideo').src = 'https://www.youtube.com/embed/OsXFys3S_c0?autoplay=1&rel=0';
 }
 </script>
